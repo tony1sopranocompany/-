@@ -5,36 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>عيديتك</title>
     <style>
-        /* بعض التنسيق البسيط */
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        
         body {
             font-family: 'Tajawal', sans-serif;
             text-align: center;
+            background-size: cover;
             color: white;
             position: relative;
-            background-color: #f0f0f0; /* يمكنك تغيير اللون إذا أردت */
         }
+        
+        /* إضافة طبقة شفافة فوق الخلفية لتحسين وضوح النص */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* لون شفاف غامق */
+            z-index: -1;
+        }
+        
         .container {
             margin-top: 100px;
             position: relative;
             z-index: 1;
         }
+        
         input, button {
             padding: 10px;
             margin: 10px;
             font-size: 18px;
         }
+        
         #result {
             font-size: 50px;
             margin-top: 20px;
             font-weight: bold;
         }
+        
         .hidden {
             display: none;
         }
-        #disabled {
-            font-size: 20px;
-            color: red;
-            margin-top: 50px;
+        
+        .countdown {
+            font-size: 40px;
+            color: yellow;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -49,76 +67,64 @@
     <div class="container hidden" id="gift-page">
         <h1>اضغط الزر للحصول على عيديتك</h1>
         <button id="gift-button" onclick="getGift()">احصل على عيديتك</button>
+        <div id="countdown" class="countdown hidden"></div>
         <div id="result"></div>
     </div>
-
-    <div class="container hidden" id="disabled">
-        <h2>جميع الرموز قد تم استخدامها، الموقع غير متاح الآن</h2>
-    </div>
-
+    
     <script>
         const validCodes = ["Tony1", "Tony5321", "Tonyb111254", "tonyoo", "tonypp", "tonycc"];
-        const maxUsage = validCodes.length;
+        let used = false;
 
-        // دالة لإنشاء الكوكيز
-        function setCookie(name, value, days) {
-            const d = new Date();
-            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
-            let expires = "expires=" + d.toUTCString();
-            document.cookie = name + "=" + value + ";" + expires + ";path=/";
-        }
-
-        // دالة لقراءة الكوكيز
-        function getCookie(name) {
-            let nameEq = name + "=";
-            let ca = document.cookie.split(';');
-            for(let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-                if (c.indexOf(nameEq) == 0) return c.substring(nameEq.length, c.length);
-            }
-            return "";
-        }
-
-        // التحقق من الرمز
         function checkCode() {
             const userCode = document.getElementById("code").value;
-            const usedCodes = getCookie("usedCodes") ? getCookie("usedCodes").split(",") : [];
-
-            // إذا كان الرمز قد تم استخدامه من قبل
+            let usedCodes = JSON.parse(localStorage.getItem("usedCodes")) || [];
+            
             if (usedCodes.includes(userCode)) {
                 document.getElementById("error").innerText = "هذا الرمز تم استخدامه بالفعل";
                 return;
             }
 
-            // إذا كان الرمز صالحًا
             if (validCodes.includes(userCode)) {
                 usedCodes.push(userCode);
-                setCookie("usedCodes", usedCodes.join(","), 365);  // تخزين الرموز المستخدمة في الكوكيز
+                localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
                 document.getElementById("login-page").classList.add("hidden");
                 document.getElementById("gift-page").classList.remove("hidden");
-                checkAllCodesUsed(usedCodes);
             } else {
                 document.getElementById("error").innerText = "رمز غير صحيح";
             }
         }
-
-        // التحقق إذا كانت جميع الرموز قد تم استخدامها
-        function checkAllCodesUsed(usedCodes) {
-            if (usedCodes.length >= maxUsage) {
-                document.getElementById("login-page").classList.add("hidden");
-                document.getElementById("gift-page").classList.add("hidden");
-                document.getElementById("disabled").classList.remove("hidden");
-            }
-        }
-
-        // للحصول على العيدية
+        
         function getGift() {
+            if (used || localStorage.getItem("giftReceived")) return;
+            used = true;
+            document.getElementById("gift-button").style.display = "none";
+            let countdownDiv = document.getElementById("countdown");
             let resultDiv = document.getElementById("result");
             let possibleGifts = [10, 50, 500, 1000];
             let guaranteedGifts = [10, 50];
+            let count = 3;
 
-            resultDiv.innerText = possibleGifts[Math.floor(Math.random() * possibleGifts.length)] + " ريال";
+            countdownDiv.classList.remove("hidden");
+            countdownDiv.innerText = count;
+            let countdown = setInterval(() => {
+                count--;
+                countdownDiv.innerText = count;
+                if (count === 0) {
+                    clearInterval(countdown);
+                    countdownDiv.classList.add("hidden");
+                    let interval = setInterval(() => {
+                        resultDiv.innerText = possibleGifts[Math.floor(Math.random() * possibleGifts.length)] + " ريال";
+                    }, 100);
+                    
+                    setTimeout(() => {
+                        clearInterval(interval);
+                        resultDiv.innerText = guaranteedGifts[Math.floor(Math.random() * guaranteedGifts.length)] + " ريال";
+                        resultDiv.style.color = "gold";
+                        resultDiv.style.fontSize = "60px";
+                        localStorage.setItem("giftReceived", "true");
+                    }, 3000);
+                }
+            }, 1000);
         }
     </script>
 </body>
