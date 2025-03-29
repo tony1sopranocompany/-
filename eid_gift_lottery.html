@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عيديتك</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: url('https://i.imgur.com/o8TcKtd.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+        }
+        .container {
+            margin-top: 100px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+            font-size: 18px;
+        }
+        #result {
+            font-size: 50px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="login-page">
+        <h1>أدخل رمز الدخول</h1>
+        <input type="text" id="code" placeholder="أدخل الرمز هنا">
+        <button onclick="checkCode()">دخول</button>
+        <p id="error" style="color: red;"></p>
+    </div>
+    
+    <div class="container" id="gift-page" style="display: none;">
+        <h1>اضغط الزر للحصول على عيديتك</h1>
+        <button id="gift-button" onclick="getGift()">احصل على عيديتك</button>
+        <div id="result"></div>
+    </div>
+    
+    <script>
+        const validCodes = ["Tony1", "Tony5321", "Tonyb111254"];
+        let used = false;
+
+        function checkCode() {
+            const userCode = document.getElementById("code").value;
+            if (validCodes.includes(userCode)) {
+                document.getElementById("login-page").style.display = "none";
+                document.getElementById("gift-page").style.display = "block";
+            } else {
+                document.getElementById("error").innerText = "رمز غير صحيح";
+            }
+        }
+        
+        function getGift() {
+            if (used) return;
+            used = true;
+            document.getElementById("gift-button").disabled = true;
+            let resultDiv = document.getElementById("result");
+            let possibleGifts = [10, 50, 500, 1000];
+            let guaranteedGifts = [10, 50];
+            let interval = setInterval(() => {
+                resultDiv.innerText = possibleGifts[Math.floor(Math.random() * possibleGifts.length)] + " ريال";
+            }, 100);
+            
+            setTimeout(() => {
+                clearInterval(interval);
+                resultDiv.innerText = guaranteedGifts[Math.floor(Math.random() * guaranteedGifts.length)] + " ريال";
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
