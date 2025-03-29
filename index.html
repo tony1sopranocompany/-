@@ -72,7 +72,7 @@
     </div>
     
     <script>
-        const validCodes = ["Tony1", "Tony5321", "Tonyb111254", "tonyoo", "tonypp", "tonycc"];
+        const validCodes = ["Tony1", "Tony5321", "Tonyb111254"];
         let used = false;
 
         function checkCode() {
@@ -84,7 +84,7 @@
                 return;
             }
 
-            if (validCodes.includes(userCode)) {
+            if (validCodes.map(code => code.toLowerCase()).includes(userCode.toLowerCase())) {
                 usedCodes.push(userCode);
                 localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
                 document.getElementById("login-page").classList.add("hidden");
@@ -95,7 +95,11 @@
         }
         
         function getGift() {
-            if (used || localStorage.getItem("giftReceived")) return;
+            if (used || localStorage.getItem("giftReceived")) {
+                document.getElementById("gift-button").style.display = "none";
+                document.getElementById("result").innerText = "لقد حصلت على عيديتك مسبقًا!";
+                return;
+            }
             used = true;
             document.getElementById("gift-button").style.display = "none";
             let countdownDiv = document.getElementById("countdown");
@@ -129,3 +133,4 @@
     </script>
 </body>
 </html>
+ 
